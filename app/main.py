@@ -1,9 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from app.proyector import ClimateForecaster
+from proyector import ClimateForecaster
 from datetime import datetime
 import pandas as pd
+import os
+import uvicorn
 
 app = FastAPI()
 
@@ -118,3 +120,7 @@ async def get_all_projections_today():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating projections: {str(e)}")
+
+if __name__ == "__main__":
+    port = int(os.getenv("PORT", 8000))  # Use Railway's assigned port or default to 8000
+    uvicorn.run(app, host="0.0.0.0", port=port)
