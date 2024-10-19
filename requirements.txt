@@ -1,5 +1,6 @@
 pandas
-prophet
+pystan==2.19.1.1
+prophet==1.0.1
 fastapi
 uvicorn
 sqlalchemy
