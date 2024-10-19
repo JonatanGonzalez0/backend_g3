@@ -1,0 +1,4 @@
+# ignorar carpeta pycache
+__pycache__/
+# ignorar .venv (virtualenv)   
+.venv/
