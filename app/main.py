@@ -55,6 +55,10 @@ async def startup_event():
     )
     forecaster.forecast_all(ultimo_dia)
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to the Climate Forecaster API!"}
+
 # Endpoint to get the projection for one specific day
 @app.post("/get_one_day_projection")
 async def get_one_day_projection(fecha_input: FechaInput):
@@ -82,28 +86,35 @@ async def get_one_day_projection(fecha_input: FechaInput):
 # New endpoint to get projections for today and the next 8 days
 @app.get("/get_all_projections_today")
 async def get_all_projections_today():
-    """
-    Route to get weather projections from today for the next 8 days.
-    """
+    '''
+    Route to get weather projections from today for the next 8 days
+    '''
     try:
+        # Debugging step 1: Start of data fetching
+        print("Fetching data from the database...")
+        
         # Fetch and prepare the latest data from the database
         df_temp, df_humedad, df_aire, df_luz = forecaster.fetch_data()
+        
+        print("Data fetched successfully.")
+        
+        # Debugging step 2: Preparing the data
+        print("Preparing data for prediction...")
         forecaster.dataframes['temperatura'] = forecaster.prepare_data(df_temp, 'temperatura')
         forecaster.dataframes['humedad'] = forecaster.prepare_data(df_humedad, 'humedad')
         forecaster.dataframes['aire'] = forecaster.prepare_data(df_aire, 'aire')
         forecaster.dataframes['luz'] = forecaster.prepare_data(df_luz, 'luz')
 
-        # Get the current date
+        # Debugging step 3: Getting the projections
         today = datetime.now().date()
-
-        # Create a dictionary to store projections for each day
         proyecciones = {}
-        try:
-            for i in range(8):
-                fecha = today + pd.Timedelta(days=i)
-                proyecciones[fecha] = forecaster.obtener_proyeccion(str(fecha))
-            return proyecciones
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=f"Error generating projections: {str(e)}")
+        for i in range(8):
+            fecha = today + pd.Timedelta(days=i)
+            print(f"Generating projection for: {fecha}")
+            proyecciones[fecha] = forecaster.obtener_proyeccion(str(fecha))
+        print("All projections generated successfully.")
+        return proyecciones
+
     except Exception as e:
+        print(f"An error occurred: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Error generating projections: {str(e)}")
